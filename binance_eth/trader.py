@@ -15,17 +15,46 @@ from config import (
     EMAIL_SMTP_PORT,
     TRADE_CAPITAL,
     TRADE_CHECK_INTERVAL,
+    TRADE_FUNDING_RATE_8H,
     TRADE_LEVERAGE,
     TRADE_RISK_PER_TRADE,
     TRADE_STOP_LOSS_PCT,
+    TRADE_TAKER_FEE_RATE,
     TRADE_TAKE_PROFIT_PCT,
 )
 from binance_eth.client import BinanceClient
+from binance_eth.fees_funding import (
+    apply_funding_for_interval,
+    kline_interval_to_timedelta,
+    taker_fee_usdt,
+    to_utc_timestamp,
+)
 from binance_eth.email_notify import is_trade_email_configured, send_trade_email
 from binance_eth.indicators import bollinger_bands, ema, macd, rsi, sma
 from binance_eth.log import get_logger
 
 log = get_logger(__name__)
+
+# 全仓复投：名义价值低于此值则视为无法再开仓（模拟交易所最小下单）
+DEFAULT_MIN_TRADE_NOTIONAL_USDT = 5.0
+
+
+def _margin_usdt(quantity: float, entry_price: float, leverage: int) -> float:
+    if leverage <= 0:
+        return 0.0
+    return quantity * entry_price / leverage
+
+
+def _pnl_usdt_closed(side: str, entry_price: float, exit_price: float, quantity: float) -> float:
+    if side == "LONG":
+        return quantity * (exit_price - entry_price)
+    return quantity * (entry_price - exit_price)
+
+
+def _roi_pct_on_margin(pnl_usdt: float, margin: float) -> float:
+    if margin <= 1e-12:
+        return 0.0
+    return (pnl_usdt / margin) * 100.0
 
 
 def _notify_trade_email(subject: str, body: str) -> None:
@@ -61,6 +90,8 @@ class Position:
     stop_loss: float
     take_profit: float
     open_time: float
+    funding_anchor: pd.Timestamp | None = None
+    last_funding_applied: pd.Timestamp | None = None
 
 
 @dataclass
@@ -81,12 +112,16 @@ class TradingStrategy:
         risk_per_trade: float = TRADE_RISK_PER_TRADE,
         stop_loss_pct: float = TRADE_STOP_LOSS_PCT,
         take_profit_pct: float = TRADE_TAKE_PROFIT_PCT,
+        full_equity_sizing: bool = True,
+        min_trade_notional_usdt: float = DEFAULT_MIN_TRADE_NOTIONAL_USDT,
     ):
         self.capital = capital
         self.leverage = leverage
         self.risk_per_trade = risk_per_trade
         self.stop_loss_pct = stop_loss_pct
         self.take_profit_pct = take_profit_pct
+        self.full_equity_sizing = full_equity_sizing
+        self.min_trade_notional_usdt = min_trade_notional_usdt
         self.position: Optional[Position] = None
 
     def analyze_market(self, df: pd.DataFrame) -> TradeSignal:
@@ -145,6 +180,8 @@ class TradingStrategy:
 
         if long_score >= 4:
             position_size = self._calculate_position_size(current_price)
+            if position_size <= 0:
+                return TradeSignal(SignalType.NONE, current_price, "资金不足或达不到最小开仓名义")
             stop_loss = current_price * (1 - self.stop_loss_pct / 100)
             take_profit = current_price * (1 + self.take_profit_pct / 100)
             return TradeSignal(
@@ -157,6 +194,8 @@ class TradingStrategy:
             )
         elif short_score >= 4:
             position_size = self._calculate_position_size(current_price)
+            if position_size <= 0:
+                return TradeSignal(SignalType.NONE, current_price, "资金不足或达不到最小开仓名义")
             stop_loss = current_price * (1 + self.stop_loss_pct / 100)
             take_profit = current_price * (1 - self.take_profit_pct / 100)
             return TradeSignal(
@@ -213,14 +252,24 @@ class TradingStrategy:
         return TradeSignal(SignalType.NONE, current_price, "持仓中，无平仓信号")
 
     def _calculate_position_size(self, price: float) -> float:
+        if price <= 0:
+            return 0.0
+        if self.full_equity_sizing:
+            if self.capital <= 0:
+                return 0.0
+            notional = self.capital * self.leverage
+            if notional < self.min_trade_notional_usdt:
+                return 0.0
+            return notional / price
         risk_amount = self.capital * (self.risk_per_trade / 100)
         stop_loss_distance = price * (self.stop_loss_pct / 100)
         position_value = (risk_amount / stop_loss_distance) * price
         max_position = self.capital * self.leverage
         return min(position_value, max_position) / price
 
-    def open_position(self, signal: TradeSignal):
+    def open_position(self, signal: TradeSignal, funding_anchor: pd.Timestamp | None = None):
         side = "LONG" if signal.signal == SignalType.OPEN_LONG else "SHORT"
+        anchor = funding_anchor if funding_anchor is not None else pd.Timestamp.now(tz="UTC")
         self.position = Position(
             side=side,
             entry_price=signal.price,
@@ -228,6 +277,8 @@ class TradingStrategy:
             stop_loss=signal.stop_loss,
             take_profit=signal.take_profit,
             open_time=time.time(),
+            funding_anchor=anchor,
+            last_funding_applied=None,
         )
 
     def close_position(self) -> Optional[dict]:
@@ -252,17 +303,39 @@ def run_trading_bot(
     risk_per_trade: float = TRADE_RISK_PER_TRADE,
     stop_loss_pct: float = TRADE_STOP_LOSS_PCT,
     take_profit_pct: float = TRADE_TAKE_PROFIT_PCT,
+    full_equity_sizing: bool = True,
+    min_trade_notional_usdt: float = DEFAULT_MIN_TRADE_NOTIONAL_USDT,
+    taker_fee_rate: float = TRADE_TAKER_FEE_RATE,
+    funding_rate_8h: float = TRADE_FUNDING_RATE_8H,
 ) -> None:
     client = BinanceClient()
-    strategy = TradingStrategy(capital, leverage, risk_per_trade, stop_loss_pct, take_profit_pct)
+    strategy = TradingStrategy(
+        capital,
+        leverage,
+        risk_per_trade,
+        stop_loss_pct,
+        take_profit_pct,
+        full_equity_sizing=full_equity_sizing,
+        min_trade_notional_usdt=min_trade_notional_usdt,
+    )
+    paper_equity = capital
 
     log.warning("=" * 80)
     log.warning("⚠️  交易策略推荐系统 - 仅供参考，不构成投资建议")
     log.warning("⚠️  杠杆交易风险极高，可能导致全部本金损失")
     log.warning("=" * 80)
     log.info("交易对: %s | K线周期: %s", symbol, interval)
-    log.info("本金: %.2f USDT | 杠杆: %dx | 单笔风险: %.1f%%", capital, leverage, risk_per_trade)
+    log.info("初始本金: %.2f USDT | 杠杆: %dx", capital, leverage)
+    if full_equity_sizing:
+        log.info("仓位模式: 全仓复投（模拟权益随平仓更新）| 最小开仓名义: %.1f USDT", min_trade_notional_usdt)
+    else:
+        log.info("仓位模式: 固定本金风险 sizing | 单笔风险: %.1f%%", risk_per_trade)
     log.info("止损: %.1f%% | 止盈: %.1f%%", stop_loss_pct, take_profit_pct)
+    log.info(
+        "成本模型: 吃单手续费 %.4f%%/边 | 资金费 %.5f/8h（正=多头付；UTC 0/8/16 点结算）",
+        taker_fee_rate * 100,
+        funding_rate_8h,
+    )
     log.info("检查间隔: %d 秒", check_interval)
     log.info("=" * 80)
 
@@ -309,17 +382,25 @@ def run_trading_bot(
             df["high"] = df["high"].astype(float)
             df["low"] = df["low"].astype(float)
 
+            strategy.capital = paper_equity
+
             signal = strategy.analyze_market(df)
             current_price = signal.price
 
-            if strategy.position:
-                pnl_pct = 0.0
-                if strategy.position.side == "LONG":
-                    pnl_pct = ((current_price - strategy.position.entry_price) / strategy.position.entry_price) * 100 * leverage
-                else:
-                    pnl_pct = ((strategy.position.entry_price - current_price) / strategy.position.entry_price) * 100 * leverage
+            live_now = pd.Timestamp.now(tz="UTC")
+            if strategy.position and funding_rate_8h != 0:
+                fu = apply_funding_for_interval(strategy.position, live_now, current_price, funding_rate_8h)
+                paper_equity += fu
 
-                pnl_usdt = (pnl_pct / 100) * capital
+            if strategy.position:
+                qty = strategy.position.quantity
+                entry = strategy.position.entry_price
+                if strategy.position.side == "LONG":
+                    pnl_usdt = qty * (current_price - entry)
+                else:
+                    pnl_usdt = qty * (entry - current_price)
+                margin = _margin_usdt(qty, entry, leverage)
+                pnl_pct = _roi_pct_on_margin(pnl_usdt, margin)
                 liquidation_price = 0.0
                 if strategy.position.side == "LONG":
                     liquidation_price = strategy.position.entry_price * (1 - 1 / leverage * 0.9)
@@ -327,16 +408,25 @@ def run_trading_bot(
                     liquidation_price = strategy.position.entry_price * (1 + 1 / leverage * 0.9)
 
                 log.info(
-                    "持仓中 [%s] | 入场: %.2f | 当前: %.2f | 盈亏: %+.2f%% (%+.2f USDT) | 爆仓价: %.2f",
+                    "持仓中 [%s] | 入场: %.2f | 当前: %.2f | 浮动盈亏: %+.2f%% (%+.2f USDT) | 模拟权益: %.2f | 爆仓价: %.2f",
                     strategy.position.side,
                     strategy.position.entry_price,
                     current_price,
                     pnl_pct,
                     pnl_usdt,
+                    paper_equity,
                     liquidation_price,
                 )
 
             if signal.signal == SignalType.OPEN_LONG:
+                if full_equity_sizing and (
+                    paper_equity <= 0 or paper_equity * leverage < min_trade_notional_usdt or signal.position_size <= 0
+                ):
+                    log.warning(
+                        "收到开多信号但模拟权益不足以全仓开仓（权益 %.6f USDT），停止运行",
+                        paper_equity,
+                    )
+                    return
                 log.warning("🟢 开多信号 | 价格: %.2f | 原因: %s", signal.price, signal.reason)
                 log.warning(
                     "   建议仓位: %.4f %s (约 %.2f USDT)",
@@ -360,9 +450,24 @@ def run_trading_bot(
                         ]
                     ),
                 )
-                strategy.open_position(signal)
+                anchor = to_utc_timestamp(df.iloc[-1]["open_time"])
+                strategy.open_position(signal, funding_anchor=anchor)
+                fee_o = taker_fee_usdt(signal.position_size, signal.price, taker_fee_rate)
+                paper_equity -= fee_o
+                if funding_rate_8h != 0:
+                    bar_end = anchor + kline_interval_to_timedelta(interval)
+                    fu0 = apply_funding_for_interval(strategy.position, bar_end, current_price, funding_rate_8h)
+                    paper_equity += fu0
 
             elif signal.signal == SignalType.OPEN_SHORT:
+                if full_equity_sizing and (
+                    paper_equity <= 0 or paper_equity * leverage < min_trade_notional_usdt or signal.position_size <= 0
+                ):
+                    log.warning(
+                        "收到开空信号但模拟权益不足以全仓开仓（权益 %.6f USDT），停止运行",
+                        paper_equity,
+                    )
+                    return
                 log.warning("🔴 开空信号 | 价格: %.2f | 原因: %s", signal.price, signal.reason)
                 log.warning(
                     "   建议仓位: %.4f %s (约 %.2f USDT)",
@@ -386,15 +491,44 @@ def run_trading_bot(
                         ]
                     ),
                 )
-                strategy.open_position(signal)
+                anchor = to_utc_timestamp(df.iloc[-1]["open_time"])
+                strategy.open_position(signal, funding_anchor=anchor)
+                fee_o = taker_fee_usdt(signal.position_size, signal.price, taker_fee_rate)
+                paper_equity -= fee_o
+                if funding_rate_8h != 0:
+                    bar_end = anchor + kline_interval_to_timedelta(interval)
+                    fu0 = apply_funding_for_interval(strategy.position, bar_end, current_price, funding_rate_8h)
+                    paper_equity += fu0
 
             elif signal.signal == SignalType.CLOSE_LONG:
                 log.warning("⬆️  平多信号 | 价格: %.2f | 原因: %s", signal.price, signal.reason)
                 closed = strategy.close_position()
                 if closed:
-                    pnl = ((signal.price - closed["entry_price"]) / closed["entry_price"]) * 100 * leverage
-                    pnl_usdt = (pnl / 100) * capital
-                    log.warning("   平仓盈亏: %+.2f%% (%+.2f USDT)", pnl, pnl_usdt)
+                    margin = _margin_usdt(closed["quantity"], closed["entry_price"], leverage)
+                    gross = _pnl_usdt_closed("LONG", closed["entry_price"], signal.price, closed["quantity"])
+                    fee_c = taker_fee_usdt(closed["quantity"], signal.price, taker_fee_rate)
+                    net = gross - fee_c
+                    pnl = _roi_pct_on_margin(net, margin)
+                    log.warning("   平仓盈亏(含手续费): %+.2f%% (%+.2f USDT)", pnl, net)
+                    paper_equity += net
+                    if paper_equity <= 0:
+                        log.warning("模拟权益已耗尽，停止运行")
+                        _notify_trade_email(
+                            f"[{symbol}] 平多信号",
+                            "\n".join(
+                                [
+                                    f"交易对: {symbol} | K线: {interval}",
+                                    f"平仓价: {signal.price:.2f}",
+                                    f"入场价: {closed['entry_price']:.2f}",
+                                    f"原因: {signal.reason}",
+                                    f"盈亏(含手续费): {pnl:+.2f}% ({net:+.2f} USDT)",
+                                    f"平仓后模拟权益: {paper_equity:.2f} USDT",
+                                    "",
+                                    "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
+                                ]
+                            ),
+                        )
+                        return
                     _notify_trade_email(
                         f"[{symbol}] 平多信号",
                         "\n".join(
@@ -403,7 +537,7 @@ def run_trading_bot(
                                 f"平仓价: {signal.price:.2f}",
                                 f"入场价: {closed['entry_price']:.2f}",
                                 f"原因: {signal.reason}",
-                                f"估算盈亏: {pnl:+.2f}% ({pnl_usdt:+.2f} USDT)（按配置本金与杠杆估算）",
+                                f"盈亏(含手续费): {pnl:+.2f}% ({net:+.2f} USDT)",
                                 "",
                                 "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
                             ]
@@ -414,9 +548,31 @@ def run_trading_bot(
                 log.warning("⬇️  平空信号 | 价格: %.2f | 原因: %s", signal.price, signal.reason)
                 closed = strategy.close_position()
                 if closed:
-                    pnl = ((closed["entry_price"] - signal.price) / closed["entry_price"]) * 100 * leverage
-                    pnl_usdt = (pnl / 100) * capital
-                    log.warning("   平仓盈亏: %+.2f%% (%+.2f USDT)", pnl, pnl_usdt)
+                    margin = _margin_usdt(closed["quantity"], closed["entry_price"], leverage)
+                    gross = _pnl_usdt_closed("SHORT", closed["entry_price"], signal.price, closed["quantity"])
+                    fee_c = taker_fee_usdt(closed["quantity"], signal.price, taker_fee_rate)
+                    net = gross - fee_c
+                    pnl = _roi_pct_on_margin(net, margin)
+                    log.warning("   平仓盈亏(含手续费): %+.2f%% (%+.2f USDT)", pnl, net)
+                    paper_equity += net
+                    if paper_equity <= 0:
+                        log.warning("模拟权益已耗尽，停止运行")
+                        _notify_trade_email(
+                            f"[{symbol}] 平空信号",
+                            "\n".join(
+                                [
+                                    f"交易对: {symbol} | K线: {interval}",
+                                    f"平仓价: {signal.price:.2f}",
+                                    f"入场价: {closed['entry_price']:.2f}",
+                                    f"原因: {signal.reason}",
+                                    f"盈亏(含手续费): {pnl:+.2f}% ({net:+.2f} USDT)",
+                                    f"平仓后模拟权益: {paper_equity:.2f} USDT",
+                                    "",
+                                    "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
+                                ]
+                            ),
+                        )
+                        return
                     _notify_trade_email(
                         f"[{symbol}] 平空信号",
                         "\n".join(
@@ -425,7 +581,7 @@ def run_trading_bot(
                                 f"平仓价: {signal.price:.2f}",
                                 f"入场价: {closed['entry_price']:.2f}",
                                 f"原因: {signal.reason}",
-                                f"估算盈亏: {pnl:+.2f}% ({pnl_usdt:+.2f} USDT)（按配置本金与杠杆估算）",
+                                f"盈亏(含手续费): {pnl:+.2f}% ({net:+.2f} USDT)",
                                 "",
                                 "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
                             ]
@@ -453,6 +609,10 @@ def backtest_trading_strategy(
     stop_loss_pct: float = TRADE_STOP_LOSS_PCT,
     take_profit_pct: float = TRADE_TAKE_PROFIT_PCT,
     use_db: bool = True,
+    full_equity_sizing: bool = True,
+    min_trade_notional_usdt: float = DEFAULT_MIN_TRADE_NOTIONAL_USDT,
+    taker_fee_rate: float = TRADE_TAKER_FEE_RATE,
+    funding_rate_8h: float = TRADE_FUNDING_RATE_8H,
 ) -> None:
     from binance_eth.storage import load_klines_from_db
 
@@ -493,10 +653,21 @@ def backtest_trading_strategy(
         log.error("数据不足，至少需要 100 根 K 线")
         return
 
-    strategy = TradingStrategy(capital, leverage, risk_per_trade, stop_loss_pct, take_profit_pct)
+    strategy = TradingStrategy(
+        capital,
+        leverage,
+        risk_per_trade,
+        stop_loss_pct,
+        take_profit_pct,
+        full_equity_sizing=full_equity_sizing,
+        min_trade_notional_usdt=min_trade_notional_usdt,
+    )
     trades = []
     equity_curve = [capital]
     current_capital = capital
+    interval_td = kline_interval_to_timedelta(interval)
+    total_fee_usdt = 0.0
+    total_funding_usdt = 0.0
 
     log.info("=" * 80)
     log.info("交易策略回测报告")
@@ -504,116 +675,209 @@ def backtest_trading_strategy(
     log.info("交易对: %s | K线周期: %s | 数据量: %d", symbol, interval, len(df))
     log.info("时间范围: %s 至 %s", df.iloc[0]["open_time"], df.iloc[-1]["open_time"])
     log.info("初始资金: %.2f USDT | 杠杆: %dx", capital, leverage)
-    log.info("止损: %.1f%% | 止盈: %.1f%% | 单笔风险: %.1f%%", stop_loss_pct, take_profit_pct, risk_per_trade)
+    log.info("止损: %.1f%% | 止盈: %.1f%%", stop_loss_pct, take_profit_pct)
+    if full_equity_sizing:
+        log.info(
+            "仓位: 全仓复投（每根K线按当前权益开仓）| 名义 < %.1f USDT 或权益 ≤ 0 时终止回测",
+            min_trade_notional_usdt,
+        )
+    else:
+        log.info("仓位: 固定本金风险 sizing | 单笔风险: %.1f%%", risk_per_trade)
+    log.info(
+        "成本: 吃单手续费 %.4f%%/边 | 资金费 %.5f/8h（正=多头付；UTC 0/8/16）",
+        taker_fee_rate * 100,
+        funding_rate_8h,
+    )
     log.info("=" * 80)
 
+    stopped = False
     for i in range(50, len(df)):
+        if stopped:
+            break
+
+        current_time = df.iloc[i]["open_time"]
+        bar_open = to_utc_timestamp(current_time)
+        bar_end = bar_open + interval_td
+        current_price = float(df.iloc[i]["close"])
+
+        if strategy.position and funding_rate_8h != 0:
+            fu = apply_funding_for_interval(strategy.position, bar_end, current_price, funding_rate_8h)
+            current_capital += fu
+            total_funding_usdt += fu
+
+        strategy.capital = current_capital if full_equity_sizing else capital
+
+        if full_equity_sizing and not strategy.position:
+            if current_capital <= 0:
+                log.warning("权益已耗尽，回测在此前终止（K线: %s）", current_time)
+                stopped = True
+                break
+            if current_capital * leverage < min_trade_notional_usdt:
+                log.warning(
+                    "当前权益 %.4f USDT 无法满足最小开仓名义 %.1f USDT（%dx 杠杆），回测终止于 %s",
+                    current_capital,
+                    min_trade_notional_usdt,
+                    leverage,
+                    current_time,
+                )
+                stopped = True
+                break
+
         window_df = df.iloc[: i + 1].copy()
         signal = strategy.analyze_market(window_df)
-        current_price = float(df.iloc[i]["close"])
-        current_time = df.iloc[i]["open_time"]
 
         if signal.signal == SignalType.OPEN_LONG and not strategy.position:
-            strategy.open_position(signal)
+            if signal.position_size <= 0:
+                log.warning("开仓信号下可开数量为 0，回测终止于 %s", current_time)
+                stopped = True
+                break
+            strategy.open_position(signal, funding_anchor=bar_open)
+            fee_o = taker_fee_usdt(signal.position_size, signal.price, taker_fee_rate)
+            current_capital -= fee_o
+            total_fee_usdt += fee_o
+            if funding_rate_8h != 0 and strategy.position:
+                fu0 = apply_funding_for_interval(strategy.position, bar_end, current_price, funding_rate_8h)
+                current_capital += fu0
+                total_funding_usdt += fu0
             log.info(
-                "[%s] 🟢 开多 | 价格: %.2f | 仓位: %.4f | 止损: %.2f | 止盈: %.2f | 原因: %s",
+                "[%s] 🟢 开多 | 价格: %.2f | 仓位: %.4f | 止损: %.2f | 止盈: %.2f | 当前权益: %.2f | 原因: %s",
                 current_time,
                 signal.price,
                 signal.position_size,
                 signal.stop_loss,
                 signal.take_profit,
+                current_capital,
                 signal.reason,
             )
 
         elif signal.signal == SignalType.OPEN_SHORT and not strategy.position:
-            strategy.open_position(signal)
+            if signal.position_size <= 0:
+                log.warning("开仓信号下可开数量为 0，回测终止于 %s", current_time)
+                stopped = True
+                break
+            strategy.open_position(signal, funding_anchor=bar_open)
+            fee_o = taker_fee_usdt(signal.position_size, signal.price, taker_fee_rate)
+            current_capital -= fee_o
+            total_fee_usdt += fee_o
+            if funding_rate_8h != 0 and strategy.position:
+                fu0 = apply_funding_for_interval(strategy.position, bar_end, current_price, funding_rate_8h)
+                current_capital += fu0
+                total_funding_usdt += fu0
             log.info(
-                "[%s] 🔴 开空 | 价格: %.2f | 仓位: %.4f | 止损: %.2f | 止盈: %.2f | 原因: %s",
+                "[%s] 🔴 开空 | 价格: %.2f | 仓位: %.4f | 止损: %.2f | 止盈: %.2f | 当前权益: %.2f | 原因: %s",
                 current_time,
                 signal.price,
                 signal.position_size,
                 signal.stop_loss,
                 signal.take_profit,
+                current_capital,
                 signal.reason,
             )
 
         elif signal.signal == SignalType.CLOSE_LONG and strategy.position:
             closed = strategy.close_position()
             if closed:
-                pnl_pct = ((current_price - closed["entry_price"]) / closed["entry_price"]) * 100 * leverage
-                pnl_usdt = (pnl_pct / 100) * capital
-                current_capital += pnl_usdt
+                margin = _margin_usdt(closed["quantity"], closed["entry_price"], leverage)
+                gross = _pnl_usdt_closed("LONG", closed["entry_price"], current_price, closed["quantity"])
+                fee_c = taker_fee_usdt(closed["quantity"], current_price, taker_fee_rate)
+                net = gross - fee_c
+                total_fee_usdt += fee_c
+                pnl_pct = _roi_pct_on_margin(net, margin)
+                current_capital += net
                 trades.append(
                     {
                         "side": "LONG",
                         "entry_price": closed["entry_price"],
                         "exit_price": current_price,
                         "pnl_pct": pnl_pct,
-                        "pnl_usdt": pnl_usdt,
+                        "pnl_usdt": net,
                         "entry_time": current_time,
                         "exit_time": current_time,
                         "reason": signal.reason,
                     }
                 )
                 log.info(
-                    "[%s] ⬆️  平多 | 价格: %.2f | 盈亏: %+.2f%% (%+.2f USDT) | 原因: %s",
+                    "[%s] ⬆️  平多 | 价格: %.2f | 盈亏(含手续费): %+.2f%% (%+.2f USDT) | 累计权益: %.2f | 原因: %s",
                     current_time,
                     current_price,
                     pnl_pct,
-                    pnl_usdt,
+                    net,
+                    current_capital,
                     signal.reason,
                 )
+                if full_equity_sizing and current_capital <= 0:
+                    log.warning("平仓后权益耗尽，回测终止")
+                    stopped = True
 
         elif signal.signal == SignalType.CLOSE_SHORT and strategy.position:
             closed = strategy.close_position()
             if closed:
-                pnl_pct = ((closed["entry_price"] - current_price) / closed["entry_price"]) * 100 * leverage
-                pnl_usdt = (pnl_pct / 100) * capital
-                current_capital += pnl_usdt
+                margin = _margin_usdt(closed["quantity"], closed["entry_price"], leverage)
+                gross = _pnl_usdt_closed("SHORT", closed["entry_price"], current_price, closed["quantity"])
+                fee_c = taker_fee_usdt(closed["quantity"], current_price, taker_fee_rate)
+                net = gross - fee_c
+                total_fee_usdt += fee_c
+                pnl_pct = _roi_pct_on_margin(net, margin)
+                current_capital += net
                 trades.append(
                     {
                         "side": "SHORT",
                         "entry_price": closed["entry_price"],
                         "exit_price": current_price,
                         "pnl_pct": pnl_pct,
-                        "pnl_usdt": pnl_usdt,
+                        "pnl_usdt": net,
                         "entry_time": current_time,
                         "exit_time": current_time,
                         "reason": signal.reason,
                     }
                 )
                 log.info(
-                    "[%s] ⬇️  平空 | 价格: %.2f | 盈亏: %+.2f%% (%+.2f USDT) | 原因: %s",
+                    "[%s] ⬇️  平空 | 价格: %.2f | 盈亏(含手续费): %+.2f%% (%+.2f USDT) | 累计权益: %.2f | 原因: %s",
                     current_time,
                     current_price,
                     pnl_pct,
-                    pnl_usdt,
+                    net,
+                    current_capital,
                     signal.reason,
                 )
+                if full_equity_sizing and current_capital <= 0:
+                    log.warning("平仓后权益耗尽，回测终止")
+                    stopped = True
 
         equity_curve.append(current_capital)
+        if stopped:
+            break
+
+    if stopped:
+        log.info("提示: 回测因权益耗尽或达不到最小开仓名义而提前结束，未使用全部历史K线")
 
     if strategy.position:
         log.warning("回测结束时仍有持仓，强制平仓")
         final_price = float(df.iloc[-1]["close"])
-        if strategy.position.side == "LONG":
-            pnl_pct = ((final_price - strategy.position.entry_price) / strategy.position.entry_price) * 100 * leverage
-        else:
-            pnl_pct = ((strategy.position.entry_price - final_price) / strategy.position.entry_price) * 100 * leverage
-        pnl_usdt = (pnl_pct / 100) * capital
-        current_capital += pnl_usdt
+        qty = strategy.position.quantity
+        entry = strategy.position.entry_price
+        side = strategy.position.side
+        gross = _pnl_usdt_closed(side, entry, final_price, qty)
+        fee_c = taker_fee_usdt(qty, final_price, taker_fee_rate)
+        net = gross - fee_c
+        total_fee_usdt += fee_c
+        margin = _margin_usdt(qty, entry, leverage)
+        pnl_pct = _roi_pct_on_margin(net, margin)
+        current_capital += net
         trades.append(
             {
-                "side": strategy.position.side,
-                "entry_price": strategy.position.entry_price,
+                "side": side,
+                "entry_price": entry,
                 "exit_price": final_price,
                 "pnl_pct": pnl_pct,
-                "pnl_usdt": pnl_usdt,
+                "pnl_usdt": net,
                 "entry_time": df.iloc[-1]["open_time"],
                 "exit_time": df.iloc[-1]["open_time"],
                 "reason": "回测结束强制平仓",
             }
         )
+        strategy.close_position()
+        equity_curve.append(current_capital)
 
     total_return = ((current_capital - capital) / capital) * 100
     wins = sum(1 for t in trades if t["pnl_usdt"] > 0)
@@ -636,6 +900,8 @@ def backtest_trading_strategy(
     log.info("最终资金: %.2f USDT", current_capital)
     log.info("总收益率: %+.2f%%", total_return)
     log.info("最大回撤: %.2f%%", max_drawdown)
+    log.info("累计手续费(估算): %.2f USDT", total_fee_usdt)
+    log.info("累计资金费(估算): %+.2f USDT", total_funding_usdt)
     log.info("")
     log.info("交易统计:")
     log.info("  总交易次数: %d", len(trades))

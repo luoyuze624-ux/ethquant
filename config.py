@@ -60,6 +60,10 @@ TRADE_STOP_LOSS_PCT = 2.0
 TRADE_TAKE_PROFIT_PCT = 4.0
 TRADE_CHECK_INTERVAL = 30
 
+# U 本位永续近似：每边吃单手续费（按名义成交额）；资金费为每 8h 常数（真实行情波动大，可用环境变量覆盖）
+TRADE_TAKER_FEE_RATE = float(os.environ.get("TRADE_TAKER_FEE_RATE", "0.0004"))
+TRADE_FUNDING_RATE_8H = float(os.environ.get("TRADE_FUNDING_RATE_8H", "0.0001"))
+
 # 交易信号邮件：优先 EMAIL_*（见项目根目录 .env），兼容旧名 TRADE_SMTP_* / TRADE_EMAIL_TO。
 EMAIL_SMTP_HOST = os.environ.get("EMAIL_SMTP_HOST") or os.environ.get("TRADE_SMTP_HOST", "smtp.qq.com")
 EMAIL_SMTP_PORT = int(os.environ.get("EMAIL_SMTP_PORT") or os.environ.get("TRADE_SMTP_PORT", "465"))

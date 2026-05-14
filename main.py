@@ -8,7 +8,11 @@ from binance_eth.client import BinanceClient
 from binance_eth.log import get_logger
 from binance_eth.monitor import monitor_price
 from binance_eth.storage import save_klines_to_csv, save_klines_to_db
-from binance_eth.trader import backtest_trading_strategy, run_trading_bot
+from binance_eth.trader import (
+    DEFAULT_MIN_TRADE_NOTIONAL_USDT,
+    backtest_trading_strategy,
+    run_trading_bot,
+)
 from config import (
     DEFAULT_INTERVAL,
     DEFAULT_KLINES_LIMIT,
@@ -19,9 +23,11 @@ from config import (
     PRICE_UPPER_ALERT,
     TRADE_CAPITAL,
     TRADE_CHECK_INTERVAL,
+    TRADE_FUNDING_RATE_8H,
     TRADE_LEVERAGE,
     TRADE_RISK_PER_TRADE,
     TRADE_STOP_LOSS_PCT,
+    TRADE_TAKER_FEE_RATE,
     TRADE_TAKE_PROFIT_PCT,
 )
 
@@ -111,6 +117,10 @@ def cmd_trade(args):
         risk_per_trade=args.risk,
         stop_loss_pct=args.stop_loss,
         take_profit_pct=args.take_profit,
+        full_equity_sizing=not args.legacy_sizing,
+        min_trade_notional_usdt=args.min_notional,
+        taker_fee_rate=args.fee_rate,
+        funding_rate_8h=args.funding_rate_8h,
     )
 
 
@@ -130,6 +140,10 @@ def cmd_trade_backtest(args):
         stop_loss_pct=args.stop_loss,
         take_profit_pct=args.take_profit,
         use_db=args.use_db,
+        full_equity_sizing=not args.legacy_sizing,
+        min_trade_notional_usdt=args.min_notional,
+        taker_fee_rate=args.fee_rate,
+        funding_rate_8h=args.funding_rate_8h,
     )
 
 # python main.py trade -s ETHUSDT -i 5m --capital 1000 --leverage 20  --stop-loss 1.5 --take-profit 5.0
@@ -181,6 +195,29 @@ def main():
     trade_parser.add_argument("--risk", type=float, default=TRADE_RISK_PER_TRADE, help="单笔风险(%)")
     trade_parser.add_argument("--stop-loss", type=float, default=TRADE_STOP_LOSS_PCT, help="止损(%)")
     trade_parser.add_argument("--take-profit", type=float, default=TRADE_TAKE_PROFIT_PCT, help="止盈(%)")
+    trade_parser.add_argument(
+        "--legacy-sizing",
+        action="store_true",
+        help="不全仓复投，使用固定本金的单笔风险 sizing（与旧版一致）",
+    )
+    trade_parser.add_argument(
+        "--min-notional",
+        type=float,
+        default=DEFAULT_MIN_TRADE_NOTIONAL_USDT,
+        help="全仓模式下最小开仓名义(USDT)，低于则停止",
+    )
+    trade_parser.add_argument(
+        "--fee-rate",
+        type=float,
+        default=TRADE_TAKER_FEE_RATE,
+        help="吃单手续费每边(小数，如 0.0004=0.04%%)",
+    )
+    trade_parser.add_argument(
+        "--funding-rate-8h",
+        type=float,
+        default=TRADE_FUNDING_RATE_8H,
+        help="每 8h 资金费常数(正=多头付空头)；设为 0 关闭",
+    )
     trade_parser.set_defaults(func=cmd_trade)
 
     trade_backtest_parser = subparsers.add_parser("trade-backtest", help="交易策略历史回测")
@@ -194,6 +231,29 @@ def main():
     trade_backtest_parser.add_argument("--stop-loss", type=float, default=TRADE_STOP_LOSS_PCT, help="止损(%)")
     trade_backtest_parser.add_argument("--take-profit", type=float, default=TRADE_TAKE_PROFIT_PCT, help="止盈(%)")
     trade_backtest_parser.add_argument("--no-db", dest="use_db", action="store_false", help="不使用本地DB")
+    trade_backtest_parser.add_argument(
+        "--legacy-sizing",
+        action="store_true",
+        help="不全仓复投，使用固定本金的单笔风险 sizing（与旧版一致）",
+    )
+    trade_backtest_parser.add_argument(
+        "--min-notional",
+        type=float,
+        default=DEFAULT_MIN_TRADE_NOTIONAL_USDT,
+        help="全仓模式下最小开仓名义(USDT)，低于则终止回测",
+    )
+    trade_backtest_parser.add_argument(
+        "--fee-rate",
+        type=float,
+        default=TRADE_TAKER_FEE_RATE,
+        help="吃单手续费每边(小数，如 0.0004=0.04%%)",
+    )
+    trade_backtest_parser.add_argument(
+        "--funding-rate-8h",
+        type=float,
+        default=TRADE_FUNDING_RATE_8H,
+        help="每 8h 资金费常数(正=多头付)；设为 0 关闭",
+    )
     trade_backtest_parser.set_defaults(func=cmd_trade_backtest)
 
     args = parser.parse_args()
