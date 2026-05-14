@@ -1,6 +1,34 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+
+
+def _load_env_file() -> None:
+    path = BASE_DIR / ".env"
+    if not path.is_file():
+        return
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        key = key.strip()
+        if not key:
+            continue
+        val = val.strip()
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in "\"'":
+            val = val[1:-1]
+        os.environ.setdefault(key, val)
+
+
+_load_env_file()
 DATA_DIR = BASE_DIR / "data"
 LOG_DIR = BASE_DIR / "logs"
 DB_PATH = DATA_DIR / "market.db"
@@ -30,3 +58,10 @@ TRADE_RISK_PER_TRADE = 2.0
 TRADE_STOP_LOSS_PCT = 2.0
 TRADE_TAKE_PROFIT_PCT = 4.0
 TRADE_CHECK_INTERVAL = 30
+
+# 交易信号邮件：优先 EMAIL_*（见项目根目录 .env），兼容旧名 TRADE_SMTP_* / TRADE_EMAIL_TO。
+EMAIL_SMTP_HOST = os.environ.get("EMAIL_SMTP_HOST") or os.environ.get("TRADE_SMTP_HOST", "smtp.qq.com")
+EMAIL_SMTP_PORT = int(os.environ.get("EMAIL_SMTP_PORT") or os.environ.get("TRADE_SMTP_PORT", "465"))
+EMAIL_SENDER = os.environ.get("EMAIL_SENDER") or os.environ.get("TRADE_SMTP_USER", "")
+EMAIL_AUTH_CODE = os.environ.get("EMAIL_AUTH_CODE") or os.environ.get("TRADE_SMTP_PASSWORD", "")
+EMAIL_RECEIVER = os.environ.get("EMAIL_RECEIVER") or os.environ.get("TRADE_EMAIL_TO", "")

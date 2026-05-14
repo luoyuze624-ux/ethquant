@@ -132,7 +132,7 @@ def cmd_trade_backtest(args):
         use_db=args.use_db,
     )
 
-
+# python main.py trade -s ETHUSDT -i 5m --capital 1000 --leverage 20  --stop-loss 1.5 --take-profit 5.0
 def main():
     parser = argparse.ArgumentParser(
         description="Binance ETH/USDT 自动分析工具",

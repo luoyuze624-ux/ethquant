@@ -8,6 +8,11 @@ import pandas as pd
 from config import (
     DEFAULT_INTERVAL,
     DEFAULT_SYMBOL,
+    EMAIL_AUTH_CODE,
+    EMAIL_RECEIVER,
+    EMAIL_SENDER,
+    EMAIL_SMTP_HOST,
+    EMAIL_SMTP_PORT,
     TRADE_CAPITAL,
     TRADE_CHECK_INTERVAL,
     TRADE_LEVERAGE,
@@ -16,10 +21,28 @@ from config import (
     TRADE_TAKE_PROFIT_PCT,
 )
 from binance_eth.client import BinanceClient
+from binance_eth.email_notify import is_trade_email_configured, send_trade_email
 from binance_eth.indicators import bollinger_bands, ema, macd, rsi, sma
 from binance_eth.log import get_logger
 
 log = get_logger(__name__)
+
+
+def _notify_trade_email(subject: str, body: str) -> None:
+    if not is_trade_email_configured(EMAIL_SENDER, EMAIL_AUTH_CODE, EMAIL_RECEIVER):
+        return
+    try:
+        send_trade_email(
+            smtp_host=EMAIL_SMTP_HOST,
+            smtp_port=EMAIL_SMTP_PORT,
+            smtp_user=EMAIL_SENDER,
+            smtp_password=EMAIL_AUTH_CODE,
+            email_to=EMAIL_RECEIVER,
+            subject=subject,
+            body=body,
+        )
+    except Exception:
+        log.exception("交易信号邮件发送失败")
 
 
 class SignalType(Enum):
@@ -243,6 +266,14 @@ def run_trading_bot(
     log.info("检查间隔: %d 秒", check_interval)
     log.info("=" * 80)
 
+    if is_trade_email_configured(EMAIL_SENDER, EMAIL_AUTH_CODE, EMAIL_RECEIVER):
+        log.info("交易信号邮件推送已启用，收件人: %s", EMAIL_RECEIVER)
+    else:
+        log.info(
+            "交易信号邮件未启用：在项目根目录创建 .env 或导出环境变量 "
+            "EMAIL_SENDER、EMAIL_AUTH_CODE、EMAIL_RECEIVER（及可选 EMAIL_SMTP_HOST / EMAIL_SMTP_PORT）"
+        )
+
     try:
         while True:
             klines = client.get_klines(symbol, interval, 100)
@@ -303,6 +334,21 @@ def run_trading_bot(
                     signal.position_size * signal.price,
                 )
                 log.warning("   止损: %.2f (%.2f%%) | 止盈: %.2f (%.2f%%)", signal.stop_loss, stop_loss_pct, signal.take_profit, take_profit_pct)
+                base_asset = symbol.replace("USDT", "")
+                _notify_trade_email(
+                    f"[{symbol}] 开多信号",
+                    "\n".join(
+                        [
+                            f"交易对: {symbol} | K线: {interval}",
+                            f"价格: {signal.price:.2f}",
+                            f"原因: {signal.reason}",
+                            f"建议仓位: {signal.position_size:.4f} {base_asset} (约 {signal.position_size * signal.price:.2f} USDT)",
+                            f"止损: {signal.stop_loss:.2f} ({stop_loss_pct:.2f}%) | 止盈: {signal.take_profit:.2f} ({take_profit_pct:.2f}%)",
+                            "",
+                            "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
+                        ]
+                    ),
+                )
                 strategy.open_position(signal)
 
             elif signal.signal == SignalType.OPEN_SHORT:
@@ -314,6 +360,21 @@ def run_trading_bot(
                     signal.position_size * signal.price,
                 )
                 log.warning("   止损: %.2f (%.2f%%) | 止盈: %.2f (%.2f%%)", signal.stop_loss, stop_loss_pct, signal.take_profit, take_profit_pct)
+                base_asset = symbol.replace("USDT", "")
+                _notify_trade_email(
+                    f"[{symbol}] 开空信号",
+                    "\n".join(
+                        [
+                            f"交易对: {symbol} | K线: {interval}",
+                            f"价格: {signal.price:.2f}",
+                            f"原因: {signal.reason}",
+                            f"建议仓位: {signal.position_size:.4f} {base_asset} (约 {signal.position_size * signal.price:.2f} USDT)",
+                            f"止损: {signal.stop_loss:.2f} ({stop_loss_pct:.2f}%) | 止盈: {signal.take_profit:.2f} ({take_profit_pct:.2f}%)",
+                            "",
+                            "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
+                        ]
+                    ),
+                )
                 strategy.open_position(signal)
 
             elif signal.signal == SignalType.CLOSE_LONG:
@@ -323,6 +384,20 @@ def run_trading_bot(
                     pnl = ((signal.price - closed["entry_price"]) / closed["entry_price"]) * 100 * leverage
                     pnl_usdt = (pnl / 100) * capital
                     log.warning("   平仓盈亏: %+.2f%% (%+.2f USDT)", pnl, pnl_usdt)
+                    _notify_trade_email(
+                        f"[{symbol}] 平多信号",
+                        "\n".join(
+                            [
+                                f"交易对: {symbol} | K线: {interval}",
+                                f"平仓价: {signal.price:.2f}",
+                                f"入场价: {closed['entry_price']:.2f}",
+                                f"原因: {signal.reason}",
+                                f"估算盈亏: {pnl:+.2f}% ({pnl_usdt:+.2f} USDT)（按配置本金与杠杆估算）",
+                                "",
+                                "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
+                            ]
+                        ),
+                    )
 
             elif signal.signal == SignalType.CLOSE_SHORT:
                 log.warning("⬇️  平空信号 | 价格: %.2f | 原因: %s", signal.price, signal.reason)
@@ -331,6 +406,20 @@ def run_trading_bot(
                     pnl = ((closed["entry_price"] - signal.price) / closed["entry_price"]) * 100 * leverage
                     pnl_usdt = (pnl / 100) * capital
                     log.warning("   平仓盈亏: %+.2f%% (%+.2f USDT)", pnl, pnl_usdt)
+                    _notify_trade_email(
+                        f"[{symbol}] 平空信号",
+                        "\n".join(
+                            [
+                                f"交易对: {symbol} | K线: {interval}",
+                                f"平仓价: {signal.price:.2f}",
+                                f"入场价: {closed['entry_price']:.2f}",
+                                f"原因: {signal.reason}",
+                                f"估算盈亏: {pnl:+.2f}% ({pnl_usdt:+.2f} USDT)（按配置本金与杠杆估算）",
+                                "",
+                                "本邮件由交易策略推荐程序自动发送，仅供参考，不构成投资建议。",
+                            ]
+                        ),
+                    )
 
             elif signal.signal == SignalType.NONE:
                 log.info("当前价格: %.2f | %s", current_price, signal.reason)
