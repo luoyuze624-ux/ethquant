@@ -1223,3 +1223,333 @@
 2026-05-14 11:35:22 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 1/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 1.5s
 2026-05-14 11:35:33 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 2/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 2.2s
 2026-05-14 11:35:46 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 3/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 3.4s
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | 交易策略回测报告
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | 交易对: ETHUSDT | K线周期: 1h | 数据量: 500
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | 时间范围: 2026-04-23 07:00:00 至 2026-05-14 02:00:00
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | 初始资金: 1000.00 USDT | 杠杆: 20x
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | 止损: 1.5% | 止盈: 5.0% | 单笔风险: 2.0%
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | [2026-04-25 15:00:00] 🟢 开多 | 价格: 2308.09 | 仓位: 0.5777 | 止损: 2273.47 | 止盈: 2423.49 | 原因: RSI超卖(<30) | MACD死叉 | 价格触及布林下轨
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | [2026-04-26 05:00:00] ⬆️  平多 | 价格: 2327.84 | 盈亏: +17.11% (+171.14 USDT) | 原因: RSI超买，建议止盈
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | [2026-04-26 06:00:00] 🔴 开空 | 价格: 2329.99 | 仓位: 0.5722 | 止损: 2364.94 | 止盈: 2213.49 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | [2026-04-26 19:00:00] ⬇️  平空 | 价格: 2367.40 | 盈亏: -32.11% (-321.12 USDT) | 原因: 触发止损 (入场:2329.99 止损:2364.94)
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | [2026-04-27 00:00:00] 🔴 开空 | 价格: 2390.76 | 仓位: 0.5577 | 止损: 2426.62 | 止盈: 2271.22 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:01 | INFO    | binance_eth.trader | [2026-04-27 05:00:00] ⬇️  平空 | 价格: 2323.18 | 盈亏: +56.53% (+565.34 USDT) | 原因: RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-04-29 03:00:00] 🔴 开空 | 价格: 2311.52 | 仓位: 0.5768 | 止损: 2346.19 | 止盈: 2195.94 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-04-29 15:00:00] ⬇️  平空 | 价格: 2272.51 | 盈亏: +33.75% (+337.53 USDT) | 原因: RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-04-29 18:00:00] 🟢 开多 | 价格: 2239.41 | 仓位: 0.5954 | 止损: 2205.82 | 止盈: 2351.38 | 原因: RSI超卖(<30) | 价格触及布林下轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-01 03:00:00] ⬆️  平多 | 价格: 2282.87 | 盈亏: +38.81% (+388.14 USDT) | 原因: RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-01 04:00:00] 🔴 开空 | 价格: 2280.12 | 仓位: 0.5848 | 止损: 2314.32 | 止盈: 2166.11 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-01 13:00:00] ⬇️  平空 | 价格: 2318.22 | 盈亏: -33.42% (-334.19 USDT) | 原因: 触发止损 (入场:2280.12 止损:2314.32)
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-02 21:00:00] 🟢 开多 | 价格: 2325.62 | 仓位: 0.5733 | 止损: 2290.74 | 止盈: 2441.90 | 原因: RSI超买(>70) | MACD金叉 | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-02 22:00:00] ⬆️  平多 | 价格: 2327.00 | 盈亏: +1.19% (+11.87 USDT) | 原因: RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-03 11:00:00] 🟢 开多 | 价格: 2319.63 | 仓位: 0.5748 | 止损: 2284.84 | 止盈: 2435.61 | 原因: MACD金叉
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-03 12:00:00] ⬆️  平多 | 价格: 2325.71 | 盈亏: +5.24% (+52.42 USDT) | 原因: RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-04 01:00:00] 🟢 开多 | 价格: 2351.20 | 仓位: 0.5671 | 止损: 2315.93 | 止盈: 2468.76 | 原因: MACD金叉 | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-04 02:00:00] ⬆️  平多 | 价格: 2374.73 | 盈亏: +20.02% (+200.15 USDT) | 原因: RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-04 03:00:00] 🔴 开空 | 价格: 2385.12 | 仓位: 0.5590 | 止损: 2420.90 | 止盈: 2265.86 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-05 03:00:00] ⬇️  平空 | 价格: 2382.43 | 盈亏: +2.26% (+22.56 USDT) | 原因: MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-06 08:00:00] 🟢 开多 | 价格: 2394.33 | 仓位: 0.5569 | 止损: 2358.42 | 止盈: 2514.05 | 原因: RSI超买(>70) | MACD金叉 | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-06 09:00:00] ⬆️  平多 | 价格: 2412.76 | 盈亏: +15.39% (+153.95 USDT) | 原因: RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-06 10:00:00] 🔴 开空 | 价格: 2410.20 | 仓位: 0.5532 | 止损: 2446.35 | 止盈: 2289.69 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-06 17:00:00] ⬇️  平空 | 价格: 2349.70 | 盈亏: +50.20% (+502.03 USDT) | 原因: RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-07 13:00:00] 🔴 开空 | 价格: 2314.32 | 仓位: 0.5761 | 止损: 2349.03 | 止盈: 2198.60 | 原因: RSI超卖(<30) | MACD死叉
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-07 14:00:00] ⬇️  平空 | 价格: 2298.98 | 盈亏: +13.26% (+132.57 USDT) | 原因: RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-07 15:00:00] 🟢 开多 | 价格: 2294.82 | 仓位: 0.5810 | 止损: 2260.40 | 止盈: 2409.56 | 原因: RSI超卖(<30) | 价格触及布林下轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-08 18:00:00] ⬆️  平多 | 价格: 2313.49 | 盈亏: +16.27% (+162.71 USDT) | 原因: RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-08 19:00:00] 🔴 开空 | 价格: 2316.05 | 仓位: 0.5757 | 止损: 2350.79 | 止盈: 2200.25 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-09 17:00:00] ⬇️  平空 | 价格: 2329.45 | 盈亏: -11.57% (-115.71 USDT) | 原因: MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-09 18:00:00] 🔴 开空 | 价格: 2330.22 | 仓位: 0.5722 | 止损: 2365.17 | 止盈: 2213.71 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-10 15:00:00] ⬇️  平空 | 价格: 2347.56 | 盈亏: -14.88% (-148.83 USDT) | 原因: MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-10 16:00:00] 🔴 开空 | 价格: 2350.00 | 仓位: 0.5674 | 止损: 2385.25 | 止盈: 2232.50 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-10 22:00:00] ⬇️  平空 | 价格: 2373.78 | 盈亏: -20.24% (-202.38 USDT) | 原因: MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-12 01:00:00] 🟢 开多 | 价格: 2311.41 | 仓位: 0.5768 | 止损: 2276.74 | 止盈: 2426.98 | 原因: RSI超卖(<30) | MACD死叉 | 价格触及布林下轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-12 13:00:00] ⬆️  平多 | 价格: 2271.99 | 盈亏: -34.11% (-341.09 USDT) | 原因: 触发止损 (入场:2311.41 止损:2276.74)
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-13 04:00:00] 🔴 开空 | 价格: 2306.67 | 仓位: 0.5780 | 止损: 2341.27 | 止盈: 2191.34 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-13 13:00:00] ⬇️  平空 | 价格: 2262.80 | 盈亏: +38.04% (+380.38 USDT) | 原因: RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | [2026-05-13 15:00:00] 🟢 开多 | 价格: 2236.49 | 仓位: 0.5962 | 止损: 2202.94 | 止盈: 2348.31 | 原因: RSI超卖(<30) | 价格触及布林下轨
+2026-05-14 11:56:02 | WARNING | binance_eth.trader | 回测结束时仍有持仓，强制平仓
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 回测结果汇总
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 初始资金: 1000.00 USDT
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 最终资金: 2864.54 USDT
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 总收益率: +186.45%
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 最大回撤: -27.42%
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 交易统计:
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   总交易次数: 20
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   盈利次数: 14 | 亏损次数: 6
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   胜率: 70.0%
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   平均盈利: 237.70 USDT | 平均亏损: -243.89 USDT
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   盈亏比: 2.27
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | 交易明细:
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #1 [LONG] 入场: 2308.09 | 出场: 2327.84 | 盈亏: +17.11% (+171.14 USDT) | RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #2 [SHORT] 入场: 2329.99 | 出场: 2367.40 | 盈亏: -32.11% (-321.12 USDT) | 触发止损 (入场:2329.99 止损:2364.94)
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #3 [SHORT] 入场: 2390.76 | 出场: 2323.18 | 盈亏: +56.53% (+565.34 USDT) | RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #4 [SHORT] 入场: 2311.52 | 出场: 2272.51 | 盈亏: +33.75% (+337.53 USDT) | RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #5 [LONG] 入场: 2239.41 | 出场: 2282.87 | 盈亏: +38.81% (+388.14 USDT) | RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #6 [SHORT] 入场: 2280.12 | 出场: 2318.22 | 盈亏: -33.42% (-334.19 USDT) | 触发止损 (入场:2280.12 止损:2314.32)
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #7 [LONG] 入场: 2325.62 | 出场: 2327.00 | 盈亏: +1.19% (+11.87 USDT) | RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #8 [LONG] 入场: 2319.63 | 出场: 2325.71 | 盈亏: +5.24% (+52.42 USDT) | RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #9 [LONG] 入场: 2351.20 | 出场: 2374.73 | 盈亏: +20.02% (+200.15 USDT) | RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #10 [SHORT] 入场: 2385.12 | 出场: 2382.43 | 盈亏: +2.26% (+22.56 USDT) | MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #11 [LONG] 入场: 2394.33 | 出场: 2412.76 | 盈亏: +15.39% (+153.95 USDT) | RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #12 [SHORT] 入场: 2410.20 | 出场: 2349.70 | 盈亏: +50.20% (+502.03 USDT) | RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #13 [SHORT] 入场: 2314.32 | 出场: 2298.98 | 盈亏: +13.26% (+132.57 USDT) | RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #14 [LONG] 入场: 2294.82 | 出场: 2313.49 | 盈亏: +16.27% (+162.71 USDT) | RSI超买，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #15 [SHORT] 入场: 2316.05 | 出场: 2329.45 | 盈亏: -11.57% (-115.71 USDT) | MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #16 [SHORT] 入场: 2330.22 | 出场: 2347.56 | 盈亏: -14.88% (-148.83 USDT) | MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #17 [SHORT] 入场: 2350.00 | 出场: 2373.78 | 盈亏: -20.24% (-202.38 USDT) | MACD金叉信号
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #18 [LONG] 入场: 2311.41 | 出场: 2271.99 | 盈亏: -34.11% (-341.09 USDT) | 触发止损 (入场:2311.41 止损:2276.74)
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #19 [SHORT] 入场: 2306.67 | 出场: 2262.80 | 盈亏: +38.04% (+380.38 USDT) | RSI超卖，建议止盈
+2026-05-14 11:56:02 | INFO    | binance_eth.trader |   #20 [LONG] 入场: 2236.49 | 出场: 2264.12 | 盈亏: +24.71% (+247.08 USDT) | 回测结束强制平仓
+2026-05-14 11:56:02 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 11:56:28 | WARNING | binance_eth.trader | ================================================================================
+2026-05-14 11:56:28 | WARNING | binance_eth.trader | ⚠️  交易策略推荐系统 - 仅供参考，不构成投资建议
+2026-05-14 11:56:28 | WARNING | binance_eth.trader | ⚠️  杠杆交易风险极高，可能导致全部本金损失
+2026-05-14 11:56:28 | WARNING | binance_eth.trader | ================================================================================
+2026-05-14 11:56:28 | INFO    | binance_eth.trader | 交易对: ETHUSDT | K线周期: 5m
+2026-05-14 11:56:28 | INFO    | binance_eth.trader | 本金: 1000.00 USDT | 杠杆: 20x | 单笔风险: 2.0%
+2026-05-14 11:56:28 | INFO    | binance_eth.trader | 止损: 1.5% | 止盈: 5.0%
+2026-05-14 11:56:28 | INFO    | binance_eth.trader | 检查间隔: 30 秒
+2026-05-14 11:56:28 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 11:56:28 | INFO    | binance_eth.trader | 交易信号邮件推送已启用，收件人: 1175371321@qq.com
+2026-05-14 11:56:39 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 1/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 1.5s
+2026-05-14 11:56:50 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 2/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 2.2s
+2026-05-14 11:57:03 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 3/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 3.4s
+2026-05-14 13:58:59 | WARNING | binance_eth.trader | ================================================================================
+2026-05-14 13:58:59 | WARNING | binance_eth.trader | ⚠️  交易策略推荐系统 - 仅供参考，不构成投资建议
+2026-05-14 13:58:59 | WARNING | binance_eth.trader | ⚠️  杠杆交易风险极高，可能导致全部本金损失
+2026-05-14 13:58:59 | WARNING | binance_eth.trader | ================================================================================
+2026-05-14 13:58:59 | INFO    | binance_eth.trader | 交易对: ETHUSDT | K线周期: 5m
+2026-05-14 13:58:59 | INFO    | binance_eth.trader | 本金: 1000.00 USDT | 杠杆: 20x | 单笔风险: 2.0%
+2026-05-14 13:58:59 | INFO    | binance_eth.trader | 止损: 1.5% | 止盈: 5.0%
+2026-05-14 13:58:59 | INFO    | binance_eth.trader | 检查间隔: 30 秒
+2026-05-14 13:58:59 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 13:58:59 | INFO    | binance_eth.trader | 交易信号邮件推送已启用，收件人: 1175371321@qq.com
+2026-05-14 13:59:09 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 1/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 1.5s
+2026-05-14 13:59:21 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 2/3): HTTPSConnectionPool(host='api.binance.com', port=443): Max retries exceeded with url: /api/v3/klines?symbol=ETHUSDT&interval=5m&limit=100 (Caused by NewConnectionError("HTTPSConnection(host='api.binance.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable")) — retry in 2.2s
+2026-05-14 13:59:24 | INFO    | binance_eth.trader | 交易推荐系统已停止
+2026-05-14 13:59:34 | WARNING | binance_eth.trader | ================================================================================
+2026-05-14 13:59:34 | WARNING | binance_eth.trader | ⚠️  交易策略推荐系统 - 仅供参考，不构成投资建议
+2026-05-14 13:59:34 | WARNING | binance_eth.trader | ⚠️  杠杆交易风险极高，可能导致全部本金损失
+2026-05-14 13:59:34 | WARNING | binance_eth.trader | ================================================================================
+2026-05-14 13:59:34 | INFO    | binance_eth.trader | 交易对: ETHUSDT | K线周期: 5m
+2026-05-14 13:59:34 | INFO    | binance_eth.trader | 本金: 1000.00 USDT | 杠杆: 20x | 单笔风险: 2.0%
+2026-05-14 13:59:34 | INFO    | binance_eth.trader | 止损: 1.5% | 止盈: 5.0%
+2026-05-14 13:59:34 | INFO    | binance_eth.trader | 检查间隔: 30 秒
+2026-05-14 13:59:34 | INFO    | binance_eth.trader | ================================================================================
+2026-05-14 13:59:34 | INFO    | binance_eth.trader | 交易信号邮件推送已启用，收件人: 1175371321@qq.com
+2026-05-14 13:59:34 | INFO    | binance_eth.trader | 当前价格: 2269.27 | 信号不足
+2026-05-14 14:00:05 | INFO    | binance_eth.trader | 当前价格: 2268.72 | 信号不足
+2026-05-14 14:00:35 | INFO    | binance_eth.trader | 当前价格: 2269.68 | 信号不足
+2026-05-14 14:01:05 | INFO    | binance_eth.trader | 当前价格: 2270.52 | 信号不足
+2026-05-14 14:01:35 | INFO    | binance_eth.trader | 当前价格: 2270.22 | 信号不足
+2026-05-14 14:02:05 | INFO    | binance_eth.trader | 当前价格: 2269.12 | 信号不足
+2026-05-14 14:02:36 | INFO    | binance_eth.trader | 当前价格: 2267.95 | 信号不足
+2026-05-14 14:03:06 | INFO    | binance_eth.trader | 当前价格: 2270.48 | 信号不足
+2026-05-14 14:03:36 | INFO    | binance_eth.trader | 当前价格: 2269.61 | 信号不足
+2026-05-14 14:04:06 | INFO    | binance_eth.trader | 当前价格: 2269.86 | 信号不足
+2026-05-14 14:04:36 | INFO    | binance_eth.trader | 当前价格: 2270.40 | 信号不足
+2026-05-14 14:05:07 | INFO    | binance_eth.trader | 当前价格: 2270.88 | 信号不足
+2026-05-14 14:05:37 | INFO    | binance_eth.trader | 当前价格: 2272.17 | 信号不足
+2026-05-14 14:06:07 | INFO    | binance_eth.trader | 当前价格: 2271.68 | 信号不足
+2026-05-14 14:06:37 | WARNING | binance_eth.trader | 🔴 开空信号 | 价格: 2273.40 | 原因: RSI超买(>70) | 价格触及布林上轨
+2026-05-14 14:06:37 | WARNING | binance_eth.trader |    建议仓位: 0.5865 ETH (约 1333.33 USDT)
+2026-05-14 14:06:37 | WARNING | binance_eth.trader |    止损: 2307.50 (1.50%) | 止盈: 2159.73 (5.00%)
+2026-05-14 14:06:38 | INFO    | binance_eth.email_notify | 交易信号邮件已发送: [ETHUSDT] 开空信号
+2026-05-14 14:07:08 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.19 | 盈亏: +0.18% (+1.85 USDT) | 爆仓价: 2375.70
+2026-05-14 14:07:08 | INFO    | binance_eth.trader | 当前价格: 2273.19 | 持仓中，无平仓信号
+2026-05-14 14:07:38 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.63 | 盈亏: -0.20% (-2.02 USDT) | 爆仓价: 2375.70
+2026-05-14 14:07:38 | INFO    | binance_eth.trader | 当前价格: 2273.63 | 持仓中，无平仓信号
+2026-05-14 14:08:08 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.61 | 盈亏: +0.69% (+6.95 USDT) | 爆仓价: 2375.70
+2026-05-14 14:08:08 | INFO    | binance_eth.trader | 当前价格: 2272.61 | 持仓中，无平仓信号
+2026-05-14 14:08:39 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.37 | 盈亏: +1.79% (+17.86 USDT) | 爆仓价: 2375.70
+2026-05-14 14:08:39 | INFO    | binance_eth.trader | 当前价格: 2271.37 | 持仓中，无平仓信号
+2026-05-14 14:09:09 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.87 | 盈亏: +3.11% (+31.05 USDT) | 爆仓价: 2375.70
+2026-05-14 14:09:09 | INFO    | binance_eth.trader | 当前价格: 2269.87 | 持仓中，无平仓信号
+2026-05-14 14:09:39 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.43 | 盈亏: +2.61% (+26.13 USDT) | 爆仓价: 2375.70
+2026-05-14 14:09:39 | INFO    | binance_eth.trader | 当前价格: 2270.43 | 持仓中，无平仓信号
+2026-05-14 14:10:09 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.06 | 盈亏: +2.94% (+29.38 USDT) | 爆仓价: 2375.70
+2026-05-14 14:10:09 | INFO    | binance_eth.trader | 当前价格: 2270.06 | 持仓中，无平仓信号
+2026-05-14 14:10:39 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.68 | 盈亏: +1.51% (+15.13 USDT) | 爆仓价: 2375.70
+2026-05-14 14:10:39 | INFO    | binance_eth.trader | 当前价格: 2271.68 | 持仓中，无平仓信号
+2026-05-14 14:11:09 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.19 | 盈亏: +0.18% (+1.85 USDT) | 爆仓价: 2375.70
+2026-05-14 14:11:09 | INFO    | binance_eth.trader | 当前价格: 2273.19 | 持仓中，无平仓信号
+2026-05-14 14:11:39 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.34 | 盈亏: +0.05% (+0.53 USDT) | 爆仓价: 2375.70
+2026-05-14 14:11:39 | INFO    | binance_eth.trader | 当前价格: 2273.34 | 持仓中，无平仓信号
+2026-05-14 14:12:10 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.27 | 盈亏: +0.11% (+1.14 USDT) | 爆仓价: 2375.70
+2026-05-14 14:12:10 | INFO    | binance_eth.trader | 当前价格: 2273.27 | 持仓中，无平仓信号
+2026-05-14 14:12:40 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.72 | 盈亏: +0.60% (+5.98 USDT) | 爆仓价: 2375.70
+2026-05-14 14:12:40 | INFO    | binance_eth.trader | 当前价格: 2272.72 | 持仓中，无平仓信号
+2026-05-14 14:13:10 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.59 | 盈亏: -0.17% (-1.67 USDT) | 爆仓价: 2375.70
+2026-05-14 14:13:10 | INFO    | binance_eth.trader | 当前价格: 2273.59 | 持仓中，无平仓信号
+2026-05-14 14:13:40 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.13 | 盈亏: +0.24% (+2.38 USDT) | 爆仓价: 2375.70
+2026-05-14 14:13:40 | INFO    | binance_eth.trader | 当前价格: 2273.13 | 持仓中，无平仓信号
+2026-05-14 14:14:10 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.30 | 盈亏: +0.09% (+0.88 USDT) | 爆仓价: 2375.70
+2026-05-14 14:14:10 | INFO    | binance_eth.trader | 当前价格: 2273.30 | 持仓中，无平仓信号
+2026-05-14 14:14:40 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.70 | 盈亏: -0.26% (-2.64 USDT) | 爆仓价: 2375.70
+2026-05-14 14:14:40 | INFO    | binance_eth.trader | 当前价格: 2273.70 | 持仓中，无平仓信号
+2026-05-14 14:15:11 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2274.29 | 盈亏: -0.78% (-7.83 USDT) | 爆仓价: 2375.70
+2026-05-14 14:15:11 | INFO    | binance_eth.trader | 当前价格: 2274.29 | 持仓中，无平仓信号
+2026-05-14 14:15:41 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.51 | 盈亏: -0.10% (-0.97 USDT) | 爆仓价: 2375.70
+2026-05-14 14:15:41 | INFO    | binance_eth.trader | 当前价格: 2273.51 | 持仓中，无平仓信号
+2026-05-14 14:16:11 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.52 | 盈亏: +1.65% (+16.54 USDT) | 爆仓价: 2375.70
+2026-05-14 14:16:11 | INFO    | binance_eth.trader | 当前价格: 2271.52 | 持仓中，无平仓信号
+2026-05-14 14:16:41 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.87 | 盈亏: +1.35% (+13.46 USDT) | 爆仓价: 2375.70
+2026-05-14 14:16:41 | INFO    | binance_eth.trader | 当前价格: 2271.87 | 持仓中，无平仓信号
+2026-05-14 14:17:11 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.36 | 盈亏: +0.04% (+0.35 USDT) | 爆仓价: 2375.70
+2026-05-14 14:17:11 | INFO    | binance_eth.trader | 当前价格: 2273.36 | 持仓中，无平仓信号
+2026-05-14 14:17:41 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.26 | 盈亏: +0.12% (+1.23 USDT) | 爆仓价: 2375.70
+2026-05-14 14:17:41 | INFO    | binance_eth.trader | 当前价格: 2273.26 | 持仓中，无平仓信号
+2026-05-14 14:18:12 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.80 | 盈亏: +0.53% (+5.28 USDT) | 爆仓价: 2375.70
+2026-05-14 14:18:12 | INFO    | binance_eth.trader | 当前价格: 2272.80 | 持仓中，无平仓信号
+2026-05-14 14:18:42 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.64 | 盈亏: +0.67% (+6.69 USDT) | 爆仓价: 2375.70
+2026-05-14 14:18:42 | INFO    | binance_eth.trader | 当前价格: 2272.64 | 持仓中，无平仓信号
+2026-05-14 14:19:12 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.53 | 盈亏: +0.77% (+7.65 USDT) | 爆仓价: 2375.70
+2026-05-14 14:19:12 | INFO    | binance_eth.trader | 当前价格: 2272.53 | 持仓中，无平仓信号
+2026-05-14 14:19:42 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.79 | 盈亏: +0.54% (+5.37 USDT) | 爆仓价: 2375.70
+2026-05-14 14:19:42 | INFO    | binance_eth.trader | 当前价格: 2272.79 | 持仓中，无平仓信号
+2026-05-14 14:20:12 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.75 | 盈亏: +0.57% (+5.72 USDT) | 爆仓价: 2375.70
+2026-05-14 14:20:12 | INFO    | binance_eth.trader | 当前价格: 2272.75 | 持仓中，无平仓信号
+2026-05-14 14:20:52 | WARNING | binance_eth.client | GET /api/v3/klines failed (attempt 1/3): HTTPSConnectionPool(host='api.binance.com', port=443): Read timed out. (read timeout=10) — retry in 1.5s
+2026-05-14 14:20:54 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.63 | 盈亏: +0.68% (+6.77 USDT) | 爆仓价: 2375.70
+2026-05-14 14:20:54 | INFO    | binance_eth.trader | 当前价格: 2272.63 | 持仓中，无平仓信号
+2026-05-14 14:21:25 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.65 | 盈亏: +0.66% (+6.60 USDT) | 爆仓价: 2375.70
+2026-05-14 14:21:25 | INFO    | binance_eth.trader | 当前价格: 2272.65 | 持仓中，无平仓信号
+2026-05-14 14:21:55 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.49 | 盈亏: +0.80% (+8.01 USDT) | 爆仓价: 2375.70
+2026-05-14 14:21:55 | INFO    | binance_eth.trader | 当前价格: 2272.49 | 持仓中，无平仓信号
+2026-05-14 14:22:25 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.98 | 盈亏: +0.37% (+3.69 USDT) | 爆仓价: 2375.70
+2026-05-14 14:22:25 | INFO    | binance_eth.trader | 当前价格: 2272.98 | 持仓中，无平仓信号
+2026-05-14 14:22:55 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.19 | 盈亏: +0.18% (+1.85 USDT) | 爆仓价: 2375.70
+2026-05-14 14:22:55 | INFO    | binance_eth.trader | 当前价格: 2273.19 | 持仓中，无平仓信号
+2026-05-14 14:23:25 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.08 | 盈亏: +0.28% (+2.82 USDT) | 爆仓价: 2375.70
+2026-05-14 14:23:25 | INFO    | binance_eth.trader | 当前价格: 2273.08 | 持仓中，无平仓信号
+2026-05-14 14:23:56 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.19 | 盈亏: +0.18% (+1.85 USDT) | 爆仓价: 2375.70
+2026-05-14 14:23:56 | INFO    | binance_eth.trader | 当前价格: 2273.19 | 持仓中，无平仓信号
+2026-05-14 14:24:26 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2273.08 | 盈亏: +0.28% (+2.82 USDT) | 爆仓价: 2375.70
+2026-05-14 14:24:26 | INFO    | binance_eth.trader | 当前价格: 2273.08 | 持仓中，无平仓信号
+2026-05-14 14:24:56 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.56 | 盈亏: +0.74% (+7.39 USDT) | 爆仓价: 2375.70
+2026-05-14 14:24:56 | INFO    | binance_eth.trader | 当前价格: 2272.56 | 持仓中，无平仓信号
+2026-05-14 14:25:26 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.66 | 盈亏: +0.65% (+6.51 USDT) | 爆仓价: 2375.70
+2026-05-14 14:25:26 | INFO    | binance_eth.trader | 当前价格: 2272.66 | 持仓中，无平仓信号
+2026-05-14 14:25:56 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2272.25 | 盈亏: +1.01% (+10.12 USDT) | 爆仓价: 2375.70
+2026-05-14 14:25:56 | INFO    | binance_eth.trader | 当前价格: 2272.25 | 持仓中，无平仓信号
+2026-05-14 14:26:27 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.54 | 盈亏: +1.64% (+16.36 USDT) | 爆仓价: 2375.70
+2026-05-14 14:26:27 | INFO    | binance_eth.trader | 当前价格: 2271.54 | 持仓中，无平仓信号
+2026-05-14 14:26:57 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.09 | 盈亏: +2.03% (+20.32 USDT) | 爆仓价: 2375.70
+2026-05-14 14:26:57 | INFO    | binance_eth.trader | 当前价格: 2271.09 | 持仓中，无平仓信号
+2026-05-14 14:27:27 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.73 | 盈亏: +2.35% (+23.49 USDT) | 爆仓价: 2375.70
+2026-05-14 14:27:27 | INFO    | binance_eth.trader | 当前价格: 2270.73 | 持仓中，无平仓信号
+2026-05-14 14:27:57 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.55 | 盈亏: +2.51% (+25.07 USDT) | 爆仓价: 2375.70
+2026-05-14 14:27:57 | INFO    | binance_eth.trader | 当前价格: 2270.55 | 持仓中，无平仓信号
+2026-05-14 14:28:27 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.99 | 盈亏: +2.12% (+21.20 USDT) | 爆仓价: 2375.70
+2026-05-14 14:28:27 | INFO    | binance_eth.trader | 当前价格: 2270.99 | 持仓中，无平仓信号
+2026-05-14 14:28:57 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.23 | 盈亏: +1.91% (+19.09 USDT) | 爆仓价: 2375.70
+2026-05-14 14:28:57 | INFO    | binance_eth.trader | 当前价格: 2271.23 | 持仓中，无平仓信号
+2026-05-14 14:29:28 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2271.22 | 盈亏: +1.92% (+19.18 USDT) | 爆仓价: 2375.70
+2026-05-14 14:29:28 | INFO    | binance_eth.trader | 当前价格: 2271.22 | 持仓中，无平仓信号
+2026-05-14 14:29:58 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.01 | 盈亏: +2.98% (+29.82 USDT) | 爆仓价: 2375.70
+2026-05-14 14:29:58 | INFO    | binance_eth.trader | 当前价格: 2270.01 | 持仓中，无平仓信号
+2026-05-14 14:30:28 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.25 | 盈亏: +2.77% (+27.71 USDT) | 爆仓价: 2375.70
+2026-05-14 14:30:28 | INFO    | binance_eth.trader | 当前价格: 2270.25 | 持仓中，无平仓信号
+2026-05-14 14:30:58 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.89 | 盈亏: +2.21% (+22.08 USDT) | 爆仓价: 2375.70
+2026-05-14 14:30:58 | INFO    | binance_eth.trader | 当前价格: 2270.89 | 持仓中，无平仓信号
+2026-05-14 14:31:29 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.14 | 盈亏: +2.87% (+28.68 USDT) | 爆仓价: 2375.70
+2026-05-14 14:31:29 | INFO    | binance_eth.trader | 当前价格: 2270.14 | 持仓中，无平仓信号
+2026-05-14 14:31:59 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.00 | 盈亏: +2.99% (+29.91 USDT) | 爆仓价: 2375.70
+2026-05-14 14:31:59 | INFO    | binance_eth.trader | 当前价格: 2270.00 | 持仓中，无平仓信号
+2026-05-14 14:32:29 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.74 | 盈亏: +3.22% (+32.20 USDT) | 爆仓价: 2375.70
+2026-05-14 14:32:29 | INFO    | binance_eth.trader | 当前价格: 2269.74 | 持仓中，无平仓信号
+2026-05-14 14:32:59 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.27 | 盈亏: +4.51% (+45.13 USDT) | 爆仓价: 2375.70
+2026-05-14 14:32:59 | INFO    | binance_eth.trader | 当前价格: 2268.27 | 持仓中，无平仓信号
+2026-05-14 14:33:29 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2267.00 | 盈亏: +5.63% (+56.30 USDT) | 爆仓价: 2375.70
+2026-05-14 14:33:29 | INFO    | binance_eth.trader | 当前价格: 2267.00 | 持仓中，无平仓信号
+2026-05-14 14:34:00 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2267.40 | 盈亏: +5.28% (+52.78 USDT) | 爆仓价: 2375.70
+2026-05-14 14:34:00 | INFO    | binance_eth.trader | 当前价格: 2267.40 | 持仓中，无平仓信号
+2026-05-14 14:34:30 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2266.94 | 盈亏: +5.68% (+56.83 USDT) | 爆仓价: 2375.70
+2026-05-14 14:34:30 | INFO    | binance_eth.trader | 当前价格: 2266.94 | 持仓中，无平仓信号
+2026-05-14 14:35:00 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2267.35 | 盈亏: +5.32% (+53.22 USDT) | 爆仓价: 2375.70
+2026-05-14 14:35:00 | INFO    | binance_eth.trader | 当前价格: 2267.35 | 持仓中，无平仓信号
+2026-05-14 14:35:30 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2267.97 | 盈亏: +4.78% (+47.77 USDT) | 爆仓价: 2375.70
+2026-05-14 14:35:30 | INFO    | binance_eth.trader | 当前价格: 2267.97 | 持仓中，无平仓信号
+2026-05-14 14:36:01 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2267.71 | 盈亏: +5.01% (+50.06 USDT) | 爆仓价: 2375.70
+2026-05-14 14:36:01 | INFO    | binance_eth.trader | 当前价格: 2267.71 | 持仓中，无平仓信号
+2026-05-14 14:36:31 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.34 | 盈亏: +4.45% (+44.51 USDT) | 爆仓价: 2375.70
+2026-05-14 14:36:31 | INFO    | binance_eth.trader | 当前价格: 2268.34 | 持仓中，无平仓信号
+2026-05-14 14:37:01 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.79 | 盈亏: +4.06% (+40.56 USDT) | 爆仓价: 2375.70
+2026-05-14 14:37:01 | INFO    | binance_eth.trader | 当前价格: 2268.79 | 持仓中，无平仓信号
+2026-05-14 14:37:31 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2267.89 | 盈亏: +4.85% (+48.47 USDT) | 爆仓价: 2375.70
+2026-05-14 14:37:31 | INFO    | binance_eth.trader | 当前价格: 2267.89 | 持仓中，无平仓信号
+2026-05-14 14:38:01 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.74 | 盈亏: +4.10% (+41.00 USDT) | 爆仓价: 2375.70
+2026-05-14 14:38:01 | INFO    | binance_eth.trader | 当前价格: 2268.74 | 持仓中，无平仓信号
+2026-05-14 14:38:31 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.64 | 盈亏: +4.19% (+41.88 USDT) | 爆仓价: 2375.70
+2026-05-14 14:38:31 | INFO    | binance_eth.trader | 当前价格: 2268.64 | 持仓中，无平仓信号
+2026-05-14 14:39:02 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.92 | 盈亏: +3.94% (+39.41 USDT) | 爆仓价: 2375.70
+2026-05-14 14:39:02 | INFO    | binance_eth.trader | 当前价格: 2268.92 | 持仓中，无平仓信号
+2026-05-14 14:39:32 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.55 | 盈亏: +4.27% (+42.67 USDT) | 爆仓价: 2375.70
+2026-05-14 14:39:32 | INFO    | binance_eth.trader | 当前价格: 2268.55 | 持仓中，无平仓信号
+2026-05-14 14:40:02 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.91 | 盈亏: +3.95% (+39.50 USDT) | 爆仓价: 2375.70
+2026-05-14 14:40:02 | INFO    | binance_eth.trader | 当前价格: 2268.91 | 持仓中，无平仓信号
+2026-05-14 14:40:32 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.78 | 盈亏: +3.18% (+31.85 USDT) | 爆仓价: 2375.70
+2026-05-14 14:40:32 | INFO    | binance_eth.trader | 当前价格: 2269.78 | 持仓中，无平仓信号
+2026-05-14 14:41:02 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2270.59 | 盈亏: +2.47% (+24.72 USDT) | 爆仓价: 2375.70
+2026-05-14 14:41:02 | INFO    | binance_eth.trader | 当前价格: 2270.59 | 持仓中，无平仓信号
+2026-05-14 14:41:33 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.89 | 盈亏: +3.09% (+30.88 USDT) | 爆仓价: 2375.70
+2026-05-14 14:41:33 | INFO    | binance_eth.trader | 当前价格: 2269.89 | 持仓中，无平仓信号
+2026-05-14 14:42:03 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.79 | 盈亏: +3.18% (+31.76 USDT) | 爆仓价: 2375.70
+2026-05-14 14:42:03 | INFO    | binance_eth.trader | 当前价格: 2269.79 | 持仓中，无平仓信号
+2026-05-14 14:42:33 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.21 | 盈亏: +3.69% (+36.86 USDT) | 爆仓价: 2375.70
+2026-05-14 14:42:33 | INFO    | binance_eth.trader | 当前价格: 2269.21 | 持仓中，无平仓信号
+2026-05-14 14:43:03 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.53 | 盈亏: +3.40% (+34.05 USDT) | 爆仓价: 2375.70
+2026-05-14 14:43:03 | INFO    | binance_eth.trader | 当前价格: 2269.53 | 持仓中，无平仓信号
+2026-05-14 14:43:33 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.27 | 盈亏: +3.63% (+36.33 USDT) | 爆仓价: 2375.70
+2026-05-14 14:43:33 | INFO    | binance_eth.trader | 当前价格: 2269.27 | 持仓中，无平仓信号
+2026-05-14 14:44:04 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.02 | 盈亏: +3.85% (+38.53 USDT) | 爆仓价: 2375.70
+2026-05-14 14:44:04 | INFO    | binance_eth.trader | 当前价格: 2269.02 | 持仓中，无平仓信号
+2026-05-14 14:44:34 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.82 | 盈亏: +4.03% (+40.29 USDT) | 爆仓价: 2375.70
+2026-05-14 14:44:34 | INFO    | binance_eth.trader | 当前价格: 2268.82 | 持仓中，无平仓信号
+2026-05-14 14:45:04 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.37 | 盈亏: +3.55% (+35.45 USDT) | 爆仓价: 2375.70
+2026-05-14 14:45:04 | INFO    | binance_eth.trader | 当前价格: 2269.37 | 持仓中，无平仓信号
+2026-05-14 14:45:34 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.36 | 盈亏: +3.55% (+35.54 USDT) | 爆仓价: 2375.70
+2026-05-14 14:45:34 | INFO    | binance_eth.trader | 当前价格: 2269.36 | 持仓中，无平仓信号
+2026-05-14 14:46:04 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.50 | 盈亏: +3.43% (+34.31 USDT) | 爆仓价: 2375.70
+2026-05-14 14:46:04 | INFO    | binance_eth.trader | 当前价格: 2269.50 | 持仓中，无平仓信号
+2026-05-14 14:46:35 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.50 | 盈亏: +3.43% (+34.31 USDT) | 爆仓价: 2375.70
+2026-05-14 14:46:35 | INFO    | binance_eth.trader | 当前价格: 2269.50 | 持仓中，无平仓信号
+2026-05-14 14:47:05 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.51 | 盈亏: +3.42% (+34.22 USDT) | 爆仓价: 2375.70
+2026-05-14 14:47:05 | INFO    | binance_eth.trader | 当前价格: 2269.51 | 持仓中，无平仓信号
+2026-05-14 14:47:35 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.59 | 盈亏: +4.23% (+42.32 USDT) | 爆仓价: 2375.70
+2026-05-14 14:47:35 | INFO    | binance_eth.trader | 当前价格: 2268.59 | 持仓中，无平仓信号
+2026-05-14 14:48:05 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2267.89 | 盈亏: +4.85% (+48.47 USDT) | 爆仓价: 2375.70
+2026-05-14 14:48:05 | INFO    | binance_eth.trader | 当前价格: 2267.89 | 持仓中，无平仓信号
+2026-05-14 14:48:35 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.12 | 盈亏: +4.65% (+46.45 USDT) | 爆仓价: 2375.70
+2026-05-14 14:48:35 | INFO    | binance_eth.trader | 当前价格: 2268.12 | 持仓中，无平仓信号
+2026-05-14 14:49:05 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.59 | 盈亏: +4.23% (+42.32 USDT) | 爆仓价: 2375.70
+2026-05-14 14:49:05 | INFO    | binance_eth.trader | 当前价格: 2268.59 | 持仓中，无平仓信号
+2026-05-14 14:49:36 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.13 | 盈亏: +3.76% (+37.56 USDT) | 爆仓价: 2375.70
+2026-05-14 14:49:36 | INFO    | binance_eth.trader | 当前价格: 2269.13 | 持仓中，无平仓信号
+2026-05-14 14:50:06 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.62 | 盈亏: +4.21% (+42.05 USDT) | 爆仓价: 2375.70
+2026-05-14 14:50:06 | INFO    | binance_eth.trader | 当前价格: 2268.62 | 持仓中，无平仓信号
+2026-05-14 14:50:36 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.99 | 盈亏: +3.88% (+38.80 USDT) | 爆仓价: 2375.70
+2026-05-14 14:50:36 | INFO    | binance_eth.trader | 当前价格: 2268.99 | 持仓中，无平仓信号
+2026-05-14 14:51:06 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.75 | 盈亏: +4.09% (+40.91 USDT) | 爆仓价: 2375.70
+2026-05-14 14:51:06 | INFO    | binance_eth.trader | 当前价格: 2268.75 | 持仓中，无平仓信号
+2026-05-14 14:51:36 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2269.40 | 盈亏: +3.52% (+35.19 USDT) | 爆仓价: 2375.70
+2026-05-14 14:51:36 | INFO    | binance_eth.trader | 当前价格: 2269.40 | 持仓中，无平仓信号
+2026-05-14 14:52:07 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.78 | 盈亏: +4.06% (+40.64 USDT) | 爆仓价: 2375.70
+2026-05-14 14:52:07 | INFO    | binance_eth.trader | 当前价格: 2268.78 | 持仓中，无平仓信号
+2026-05-14 14:52:37 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.86 | 盈亏: +3.99% (+39.94 USDT) | 爆仓价: 2375.70
+2026-05-14 14:52:37 | INFO    | binance_eth.trader | 当前价格: 2268.86 | 持仓中，无平仓信号
+2026-05-14 14:53:08 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.78 | 盈亏: +4.06% (+40.64 USDT) | 爆仓价: 2375.70
+2026-05-14 14:53:08 | INFO    | binance_eth.trader | 当前价格: 2268.78 | 持仓中，无平仓信号
+2026-05-14 14:53:38 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.71 | 盈亏: +4.13% (+41.26 USDT) | 爆仓价: 2375.70
+2026-05-14 14:53:38 | INFO    | binance_eth.trader | 当前价格: 2268.71 | 持仓中，无平仓信号
+2026-05-14 14:54:09 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.71 | 盈亏: +4.13% (+41.26 USDT) | 爆仓价: 2375.70
+2026-05-14 14:54:09 | INFO    | binance_eth.trader | 当前价格: 2268.71 | 持仓中，无平仓信号
+2026-05-14 14:54:39 | INFO    | binance_eth.trader | 持仓中 [SHORT] | 入场: 2273.40 | 当前: 2268.95 | 盈亏: +3.91% (+39.15 USDT) | 爆仓价: 2375.70
+2026-05-14 14:54:39 | INFO    | binance_eth.trader | 当前价格: 2268.95 | 持仓中，无平仓信号

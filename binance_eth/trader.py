@@ -276,7 +276,18 @@ def run_trading_bot(
 
     try:
         while True:
-            klines = client.get_klines(symbol, interval, 100)
+            try:
+                klines = client.get_klines(symbol, interval, 100)
+            except RuntimeError as exc:
+                log.error(
+                    "无法从 Binance 获取 K 线（请检查本机/WSL 网络、代理、防火墙）。"
+                    "%d 秒后重试。可尝试设置环境变量 BINANCE_BASE_URL=https://api1.binance.com 。详情: %s",
+                    check_interval,
+                    exc,
+                )
+                time.sleep(check_interval)
+                continue
+
             df = pd.DataFrame(
                 klines,
                 columns=[

@@ -33,7 +33,8 @@ DATA_DIR = BASE_DIR / "data"
 LOG_DIR = BASE_DIR / "logs"
 DB_PATH = DATA_DIR / "market.db"
 
-BINANCE_BASE_URL = "https://api.binance.com"
+# 可通过环境变量 BINANCE_BASE_URL 切换，例如 https://api1.binance.com（与 api.binance.com 同功能）
+BINANCE_BASE_URL = os.environ.get("BINANCE_BASE_URL", "https://api.binance.com").rstrip("/")
 HTTP_TIMEOUT = 10
 HTTP_RETRY = 3
 HTTP_RETRY_BACKOFF = 1.5
